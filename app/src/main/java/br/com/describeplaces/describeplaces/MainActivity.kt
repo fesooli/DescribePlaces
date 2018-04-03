@@ -119,7 +119,7 @@ class MainActivity  : AppCompatActivity(){
             val gson = Gson()
             val client =
                     VisionServiceRestClient(
-                            "28b81bd9e80540ef9dff315cd1b927db")
+                            "KEY")
 
             val v = client.describe(inputStream, 1)
             val result = gson.toJson(v)
