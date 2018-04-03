@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Geocoder
 import android.os.*
 import android.speech.RecognizerIntent
@@ -20,16 +19,23 @@ import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.services.rekognition.AmazonRekognitionClient
 import com.amazonaws.services.rekognition.model.DetectLabelsRequest
 import com.amazonaws.services.rekognition.model.Image
+import com.google.gson.Gson
+import com.microsoft.projectoxford.vision.VisionServiceClient
+import com.microsoft.projectoxford.vision.VisionServiceRestClient
+import com.microsoft.projectoxford.vision.contract.AnalysisResult
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_main.*
+import org.json.JSONObject
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
 import java.io.ByteArrayOutputStream
+import java.net.URI
 
 class MainActivity  : AppCompatActivity(){
 
     var URL: String = "https://maps.googleapis.com/maps/api/streetview?size=800x800&location="
-    var URL_COMPLETE = "&fov=90&heading=235&pitch=10&key=API_GOOGLE"
+    var URL_COMPLETE = "&fov=90&heading=235&pitch=10&key=AIzaSyCazXPoY_JGUEPSDqVmmztG0fISgVlfi5w"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,9 +71,11 @@ class MainActivity  : AppCompatActivity(){
 
     class getImageTask(private val context: Context): AsyncTask<String, String, String>() {
 
+        val uriBase = "https://westcentralus.api.cognitive.microsoft.com/vision/v1.0/analyze"
+
         override fun doInBackground(vararg params: String?): String {
             val geocoder = Geocoder(context)
-            var addresses = geocoder.getFromLocationName(params[0], 1)
+            var addresses = geocoder.getFromLocationName(params[0],1)
             var coordinator = ""
             for (address in addresses) {
                 coordinator =
@@ -75,26 +83,27 @@ class MainActivity  : AppCompatActivity(){
             }
             var url = params[1]
             url = url + coordinator + params[2]
-            val credentials = object : AWSCredentials {
+            /*val credentials = object : AWSCredentials {
                 override fun getAWSAccessKeyId(): String {
-                    return "API_AWS"
+                    return "AKIAIXZZWKFDOBA4W54Q"
                 }
 
                 override fun getAWSSecretKey(): String {
-                    return "API_SECRET"
+                    return "dh3/UMySXJyQeUmCF0sSn/y2KDxWLFPIYUenCcsY"
                 }
             }
 
-            val rekognitionClient = AmazonRekognitionClient(credentials)
+            val rekognitionClient = AmazonRekognitionClient(credentials)*/
             var labelResponse = ""
             //url = "https://iqglobal.intel.com/br/wp-content/uploads/sites/15/2016/09/tecnologias-e-esportes-978x653.jpg"
             val bmp = Picasso.get().load(url).get()
             var baos = ByteArrayOutputStream()
             bmp.compress(Bitmap.CompressFormat.JPEG, 90, baos)
-            val byteBuffer = ByteBuffer.wrap(baos.toByteArray())
-            Image().withBytes(byteBuffer)
+            val inputStream = ByteArrayInputStream(baos.toByteArray())
+            /*val byteBuffer = ByteBuffer.wrap(baos.toByteArray())
+            Image().withBytes(byteBuffer)*/
 
-            val request = DetectLabelsRequest()
+            /*val request = DetectLabelsRequest()
                     .withImage(Image().withBytes(byteBuffer))
                     .withMaxLabels(10)
                     .withMinConfidence(75f)
@@ -103,8 +112,18 @@ class MainActivity  : AppCompatActivity(){
 
             for (label in labels) {
                 labelResponse += label.name
-            }
-            return labelResponse
+            }*/
+            //val ur = "http://wricidades.org/sites/default/files/styles/featured/public/_MG_6312.jpg?itok=R7Ck0crQ"
+            val features = arrayOf("ImageType", "Color", "Faces", "Adult", "Categories")
+            val details = arrayOf<String>()
+            val gson = Gson()
+            val client =
+                    VisionServiceRestClient(
+                            "28b81bd9e80540ef9dff315cd1b927db")
+
+            val v = client.describe(inputStream, 1)
+            val result = gson.toJson(v)
+            return result
             //return bmp
         }
     }

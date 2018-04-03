@@ -8,11 +8,12 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "br.com.describeplaces.describeplaces"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -38,4 +39,6 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
     implementation 'com.amazonaws:aws-android-sdk-ddb:2.6.+'
     implementation 'com.amazonaws:aws-android-sdk-rekognition:2.6.+'
+    implementation 'com.microsoft.projectoxford:vision:1.0.394'
+    implementation 'org.json:json:20170516'
 }
